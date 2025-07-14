@@ -1,739 +1,81 @@
 {
-  "openapi": "3.0.3",
-  "info": {
-    "title": "Zopio API",
-    "description": "Modern full-stack business framework API built on Next.js 15 with React 19. This API provides comprehensive business application features including authentication, CRUD operations, webhooks, and real-time collaboration.",
-    "version": "1.0.0",
-    "contact": {
-      "name": "Zopio Labs",
-      "url": "https://github.com/zopiolabs"
-    }
-  },
-  "servers": [
-    {
-      "url": "{protocol}://{host}:{port}",
-      "description": "Configurable Server",
-      "variables": {
-        "protocol": {
-          "default": "http",
-          "description": "Protocol (http or https)",
-          "enum": ["http", "https"]
-        },
-        "host": {
-          "default": "localhost",
-          "description": "Server host"
-        },
-        "port": {
-          "default": "3002",
-          "description": "Server port"
-        }
-      }
-    },
-    {
-      "url": "http://localhost:3002",
-      "description": "Local Development Server"
-    },
-    {
-      "url": "https://staging-api.zopio.dev",
-      "description": "Staging Server"
-    },
-    {
-      "url": "https://api.zopio.dev",
-      "description": "Production Server"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Health",
-      "description": "System health monitoring endpoints"
-    },
-    {
-      "name": "API Keys",
-      "description": "API key management endpoints"
-    },
-    {
-      "name": "Webhooks",
-      "description": "Webhook handling endpoints for external services"
-    },
-    {
-      "name": "Cron",
-      "description": "Scheduled job endpoints"
-    },
-    {
-      "name": "Collaboration",
-      "description": "Real-time collaboration endpoints"
-    }
-  ],
-  "paths": {
-    "/api/health": {
-      "get": {
-        "tags": ["Health"],
-        "summary": "Check API health status",
-        "description": "Returns the current health status of the API including uptime, version, and timestamp",
-        "operationId": "getHealthStatus",
-        "responses": {
-          "200": {
-            "description": "API is healthy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
-                },
-                "example": {
-                  "status": "OK",
-                  "uptime": 123456,
-                  "timestamp": "2025-01-10T12:00:00Z",
-                  "version": "1.0.0"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "type": "string",
-                  "example": "OK"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/api-keys": {
-      "get": {
-        "tags": ["API Keys"],
-        "summary": "List all API keys",
-        "description": "Retrieves a list of all API keys associated with the authenticated user",
-        "operationId": "listApiKeys",
-        "security": [
+  "mockScenarios": {
+    "success": {
+      "listApiKeys": {
+        "response": [
           {
-            "ApiKeyAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of API keys",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ApiKey"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "post": {
-        "tags": ["API Keys"],
-        "summary": "Create a new API key",
-        "description": "Generates a new API key for the authenticated user",
-        "operationId": "createApiKey",
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateApiKeyRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "API key created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyWithSecret"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequestError"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["API Keys"],
-        "summary": "Delete an API key",
-        "description": "Revokes and deletes an API key by ID",
-        "operationId": "deleteApiKey",
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "required": true,
-            "description": "The ID of the API key to delete",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "API key deleted successfully"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      }
-    },
-    "/api/api-keys/private": {
-      "get": {
-        "tags": ["API Keys"],
-        "summary": "Private endpoint demo",
-        "description": "A demonstration endpoint that requires API key authentication",
-        "operationId": "getPrivateData",
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Private data retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PrivateResponse"
-                },
-                "example": {
-                  "message": "This is a private endpoint",
-                  "userId": "user_123456",
-                  "timestamp": "2025-01-10T12:00:00Z"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/api/webhooks/clerk": {
-      "post": {
-        "tags": ["Webhooks"],
-        "summary": "Handle Clerk authentication webhooks",
-        "description": "Processes webhook events from Clerk for user and organization management",
-        "operationId": "handleClerkWebhook",
-        "parameters": [
-          {
-            "name": "svix-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "id": "key_1234567890",
+            "name": "Production API Key",
+            "prefix": "sk_live_",
+            "createdAt": "2025-01-01T00:00:00Z",
+            "lastUsedAt": "2025-01-10T12:00:00Z",
+            "expiresAt": null
           },
           {
-            "name": "svix-timestamp",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "svix-signature",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClerkWebhookPayload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Webhook processed successfully"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequestError"
-          }
-        }
-      }
-    },
-    "/api/webhooks/stripe": {
-      "post": {
-        "tags": ["Webhooks"],
-        "summary": "Handle Stripe payment webhooks",
-        "description": "Processes webhook events from Stripe for payment and subscription management",
-        "operationId": "handleStripeWebhook",
-        "parameters": [
-          {
-            "name": "stripe-signature",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StripeWebhookPayload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Webhook processed successfully"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequestError"
-          }
-        }
-      }
-    },
-    "/api/trigger": {
-      "post": {
-        "tags": ["Webhooks"],
-        "summary": "Forward events to Trigger.dev",
-        "description": "Receives webhook events and forwards them to Trigger.dev for processing",
-        "operationId": "forwardToTrigger",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TriggerPayload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Event forwarded successfully"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequestError"
-          }
-        }
-      }
-    },
-    "/api/cron/keep-alive": {
-      "get": {
-        "tags": ["Cron"],
-        "summary": "Database keep-alive",
-        "description": "Maintains database connection by creating and deleting a temporary record",
-        "operationId": "keepAlive",
-        "responses": {
-          "200": {
-            "description": "Keep-alive successful",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string",
-                  "example": "OK"
-                }
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
-        }
-      }
-    },
-    "/api/collaboration/auth": {
-      "post": {
-        "tags": ["Collaboration"],
-        "summary": "Authenticate for real-time collaboration",
-        "description": "Returns an authentication token for real-time collaboration features",
-        "operationId": "getCollaborationToken",
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CollaborationAuthRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Authentication token generated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CollaborationAuthResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequestError"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "securitySchemes": {
-      "ApiKeyAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-Key",
-        "description": "API key for authentication. Can be generated through the API key management endpoints."
-      }
-    },
-    "schemas": {
-      "HealthResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": ["OK", "ERROR"],
-            "description": "Health status of the API"
-          },
-          "uptime": {
-            "type": "number",
-            "description": "Uptime in seconds"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Current server timestamp"
-          },
-          "version": {
-            "type": "string",
-            "description": "API version"
-          }
-        },
-        "required": ["status", "timestamp"]
-      },
-      "ApiKey": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier for the API key"
-          },
-          "name": {
-            "type": "string",
-            "description": "Human-readable name for the API key"
-          },
-          "prefix": {
-            "type": "string",
-            "description": "First few characters of the key for identification"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lastUsedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        },
-        "required": ["id", "name", "prefix", "createdAt"]
-      },
-      "ApiKeyWithSecret": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ApiKey"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string",
-                "description": "The full API key value (only shown once during creation)"
-              }
-            },
-            "required": ["key"]
+            "id": "key_0987654321",
+            "name": "Development API Key",
+            "prefix": "sk_test_",
+            "createdAt": "2025-01-05T10:00:00Z",
+            "lastUsedAt": "2025-01-10T14:30:00Z",
+            "expiresAt": "2025-02-05T10:00:00Z"
           }
         ]
       },
-      "CreateApiKeyRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Name for the API key"
-          },
-          "scopes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Permission scopes for the API key"
-          },
-          "expiresIn": {
-            "type": "number",
-            "description": "Expiration time in seconds (optional)"
-          }
-        },
-        "required": ["name"]
-      },
-      "PrivateResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": ["message", "userId", "timestamp"]
-      },
-      "ClerkWebhookPayload": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "user.created",
-              "user.updated",
-              "user.deleted",
-              "organization.created",
-              "organization.updated",
-              "organizationMembership.created",
-              "organizationMembership.deleted"
-            ]
-          },
-          "data": {
-            "type": "object",
-            "description": "Event-specific data"
-          }
-        },
-        "required": ["type", "data"]
-      },
-      "StripeWebhookPayload": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "checkout.session.completed",
-              "subscription_schedule.canceled"
-            ]
-          },
-          "data": {
-            "type": "object",
-            "description": "Stripe event data"
-          }
-        },
-        "required": ["type", "data"]
-      },
-      "TriggerPayload": {
-        "type": "object",
-        "properties": {
-          "event": {
-            "type": "string",
-            "description": "Event name"
-          },
-          "payload": {
-            "type": "object",
-            "description": "Event payload data"
-          }
-        },
-        "required": ["event", "payload"]
-      },
-      "CollaborationAuthRequest": {
-        "type": "object",
-        "properties": {
-          "organizationId": {
-            "type": "string",
-            "description": "Organization ID for collaboration session"
-          },
-          "documentId": {
-            "type": "string",
-            "description": "Document or resource ID"
-          }
-        },
-        "required": ["organizationId"]
-      },
-      "CollaborationAuthResponse": {
-        "type": "object",
-        "properties": {
-          "token": {
-            "type": "string",
-            "description": "Authentication token for real-time collaboration"
-          },
-          "expiresAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Token expiration timestamp"
-          }
-        },
-        "required": ["token", "expiresAt"]
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "object",
-            "properties": {
-              "code": {
-                "type": "string",
-                "description": "Error code for programmatic handling"
-              },
-              "message": {
-                "type": "string",
-                "description": "Human-readable error message"
-              },
-              "details": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "field": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "description": "Detailed error information"
-              },
-              "timestamp": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "requestId": {
-                "type": "string",
-                "description": "Unique request identifier for debugging"
-              }
-            },
-            "required": ["code", "message", "timestamp"]
-          }
-        },
-        "required": ["error"]
+      "createApiKey": {
+        "response": {
+          "id": "key_{{randomId}}",
+          "name": "{{request.body.name}}",
+          "prefix": "sk_live_",
+          "key": "sk_live_{{randomString(32)}}",
+          "createdAt": "{{currentDateTime}}",
+          "lastUsedAt": null,
+          "expiresAt": "{{futureDateTime(request.body.expiresIn)}}"
+        }
       }
     },
-    "responses": {
-      "UnauthorizedError": {
-        "description": "Authentication required or invalid API key",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "error": {
-                "code": "UNAUTHORIZED",
-                "message": "Invalid or missing API key",
-                "timestamp": "2025-01-10T12:00:00Z"
-              }
-            }
+    "errors": {
+      "unauthorized": {
+        "statusCode": 401,
+        "response": {
+          "error": {
+            "code": "UNAUTHORIZED",
+            "message": "Invalid or missing API key",
+            "timestamp": "{{currentDateTime}}"
           }
         }
       },
-      "BadRequestError": {
-        "description": "Invalid request parameters",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "error": {
-                "code": "BAD_REQUEST",
-                "message": "Invalid request parameters",
-                "details": [
-                  {
-                    "field": "name",
-                    "message": "Name is required"
-                  }
-                ],
-                "timestamp": "2025-01-10T12:00:00Z"
+      "badRequest": {
+        "statusCode": 400,
+        "response": {
+          "error": {
+            "code": "BAD_REQUEST",
+            "message": "Invalid request parameters",
+            "details": [
+              {
+                "field": "name",
+                "message": "Name must be between 3 and 50 characters"
               }
-            }
+            ],
+            "timestamp": "{{currentDateTime}}"
           }
         }
       },
-      "NotFoundError": {
-        "description": "Resource not found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "error": {
-                "code": "NOT_FOUND",
-                "message": "Resource not found",
-                "timestamp": "2025-01-10T12:00:00Z"
-              }
-            }
-          }
-        }
-      },
-      "InternalServerError": {
-        "description": "Internal server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "error": {
-                "code": "INTERNAL_SERVER_ERROR",
-                "message": "An unexpected error occurred",
-                "timestamp": "2025-01-10T12:00:00Z",
-                "requestId": "req_123456"
-              }
-            }
+      "notFound": {
+        "statusCode": 404,
+        "response": {
+          "error": {
+            "code": "NOT_FOUND",
+            "message": "API key not found",
+            "timestamp": "{{currentDateTime}}"
           }
         }
       }
     }
+  },
+  "dynamicRules": {
+    "randomId": "function() { return Math.random().toString(36).substring(2, 15); }",
+    "randomString": "function(length) { const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; let result = ''; for (let i = 0; i < length; i++) { result += chars.charAt(Math.floor(Math.random() * chars.length)); } return result; }",
+    "currentDateTime": "function() { return new Date().toISOString(); }",
+    "futureDateTime": "function(seconds) { return new Date(Date.now() + seconds * 1000).toISOString(); }"
   }
 }

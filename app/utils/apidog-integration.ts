@@ -20,7 +20,7 @@ export async function exportApiToApidog(
     const requestBody = {
       input: {
         // Doğrudan OpenAPI tanımını gönderelim
-        url: "https://test-dog-woad.vercel.app/api/openapi.json"
+        url: "https://petstore.swagger.io/v2/swagger.json"
       },
       options: {
         targetEndpointFolderId: 0,
