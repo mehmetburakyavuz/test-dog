@@ -2669,11 +2669,106 @@ Supabase, Zopio projesi için comprehensive backend çözümü sunar. PostgreSQL
 ## Deploy Sub‑Tree (Vercel vs Netlify)
 ```mermaid
 flowchart TD
-    DEP{Deploy} -->|PaaS simplicity| VERC[Vercel]
-    DEP -->|Infra control| DKR[Netlify]
-
-    VERC --> VERCa[Edge Functions, ISR]
-    DKR --> DKRb[Private networking, cost control]
+    A[Deployment Platform Seçimi] --> B{Proje Türü?}
+    
+    B -->|Next.js Uygulaması| C{Framework Optimizasyonu?}
+    B -->|JAMstack/Static Site| D{Site Türü?}
+    
+    C -->|Next.js Native Özellikler| E[✅ VERCEL]
+    C -->|Platform Bağımsızlık| F[✅ NETLIFY]
+    
+    D -->|Blog/Portfolio| G[✅ NETLIFY]
+    D -->|E-commerce/SaaS| H{Backend Gereksinimleri?}
+    
+    H -->|Serverless Functions| I[✅ VERCEL]
+    H -->|JAMstack + Forms| J[✅ NETLIFY]
+    
+    A --> K{Backend Gereksinimleri?}
+    
+    K -->|API Routes/Serverless| L[✅ VERCEL]
+    K -->|Static Site + Forms| M[✅ NETLIFY]
+    K -->|Edge Functions| N{Runtime Tercihi?}
+    
+    N -->|Node.js Runtime| O[✅ VERCEL]
+    N -->|Deno Runtime| P[✅ NETLIFY]
+    
+    A --> Q{Database Integration?}
+    
+    Q -->|Vercel KV/Postgres| R[✅ VERCEL]
+    Q -->|Third-party Database| S{Platform Tercihi?}
+    Q -->|Headless CMS| T[✅ NETLIFY]
+    
+    S -->|Next.js Ecosystem| U[✅ VERCEL]
+    S -->|JAMstack Ecosystem| V[✅ NETLIFY]
+    
+    A --> W{Developer Experience?}
+    
+    W -->|Next.js Developer| X[✅ VERCEL]
+    W -->|Multi-framework| Y[✅ NETLIFY]
+    W -->|Git-based Workflow| Z{Primary Framework?}
+    
+    Z -->|Next.js/React| AA[✅ VERCEL]
+    Z -->|Vue/Nuxt/Gatsby| BB[✅ NETLIFY]
+    
+    A --> CC{Pricing Model?}
+    
+    CC -->|Usage-based| DD[✅ VERCEL]
+    CC -->|Bandwidth-based| EE[✅ NETLIFY]
+    CC -->|Team Collaboration| FF{Team Size?}
+    
+    FF -->|Small Team| GG[✅ VERCEL]
+    FF -->|Large Team| HH[✅ NETLIFY]
+    
+    A --> II{Special Features?}
+    
+    II -->|A/B Testing| JJ[✅ NETLIFY]
+    II -->|Analytics/Monitoring| KK[✅ VERCEL]
+    II -->|Form Handling| LL[✅ NETLIFY]
+    II -->|Preview Deployments| MM{Framework?}
+    
+    MM -->|Next.js| NN[✅ VERCEL]
+    MM -->|Other Frameworks| OO[✅ NETLIFY]
+    
+    A --> PP{Performance Önceliği?}
+    
+    PP -->|Global CDN| QQ{Framework Optimizasyonu?}
+    PP -->|Build Performance| RR[✅ VERCEL]
+    PP -->|Static Site Performance| SS[✅ NETLIFY]
+    
+    QQ -->|Next.js Optimized| TT[✅ VERCEL]
+    QQ -->|Multi-framework| UU[✅ NETLIFY]
+    
+    style E fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style F fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style G fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style I fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style J fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style L fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style M fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style O fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style P fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style R fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style T fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style U fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style V fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style X fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style Y fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style AA fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style BB fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style DD fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style EE fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style GG fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style HH fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style JJ fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style KK fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style LL fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style NN fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style OO fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style RR fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style SS fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+    style TT fill:#000000,color:#ffffff,stroke:#000000,stroke-width:2px
+    style UU fill:#00ad9f,color:#ffffff,stroke:#00ad9f,stroke-width:2px
+```
 ```
 
 ### Seçim Kriterleri
