@@ -154,24 +154,24 @@ Her modül, türünü, giriş noktasını, meta verilerini ve isteğe bağlı ş
 ```mermaid
 flowchart TD
 
-    A[Project Start: Zopio Full‑Stack App] --> B{Target Region/Market}
-    B -->|Global| C[Payments: Stripe]
-    B -->|TR‑focused| D[Payments: Jetcheckout]
+    A[Project Start: Zopio Full‑Stack App] --> B{Payments}
+    B -->|Global| C[Stripe]
+    B -->|TR‑focused| D[Jetcheckout]
 
     A --> E{Auth Strategy}
     E -->|Hosted| F[Clerk]
-    E -->|In‑house| G[Zopio Auth RBAC/ABAC]
+    E -->|In‑house| G[Better Auth]
 
     A --> H{Primary Data Layer}
     H -->|Relational| I[Postgres - NeonDB]
-    H -->|Edge/Embedded| J[Turso/LibSQL]
+    H -->|Edge/Embedded| J[Supabase]
 
     A --> K{Frontend Runtime}
     K --> L[Next.js - App Router - default]
 
     A --> M{Deployment}
     M -->|PaaS| N[Vercel]
-    M -->|Self‑host| O[Docker + VPS/K8s]
+    M -->|Self‑host| O[Netlify]
 
     A --> P{Storage}
     P --> Q[Vercel Blob]
@@ -4071,9 +4071,6 @@ UploadThing entegrasyonu ile Zopio projenizde modern ve güvenli dosya yükleme 
 
 ---
 
-
----
-
 ## 🚀 Quick Start (Uçtan Uca)
 1) **Kararları ver:** (Ödeme, Auth, DB, Deploy).  
 2) **Env ayarla:** `.env` (aşağıdaki örnek).  
@@ -4113,87 +4110,6 @@ SENTRY_DSN=https://...
 
 ---
 
-## 💳 Payments Adapter Sözleşmesi (TypeScript)
-```ts
-// packages/payments/types.ts
-export interface IPaymentsAdapter {
-  createPayment(input: {
-    amount: number;
-    currency: string;
-    description?: string;
-    customerId?: string;
-    returnUrl?: string;
-    metadata?: Record<string, string>;
-  }): Promise<{
-    id: string;
-    status: 'created' | 'requires_action' | 'succeeded' | 'failed';
-    clientSecret?: string;
-    redirectUrl?: string;
-  }>;
-  capture?(paymentId: string): Promise<void>;
-  refund(
-    paymentId: string,
-    amount?: number
-  ): Promise<{ id: string; status: 'pending' | 'succeeded' | 'failed' }>;
-  verifyWebhook(signature: string, rawBody: string): {
-    id: string;
-    type: string;
-    data: any;
-  };
-}
-```
-
-### Adapter Seçici (Facade)
-```ts
-// packages/payments/index.ts
-import type { IPaymentsAdapter } from './types';
-import { stripeAdapter } from './adapters/stripe';
-import { jetAdapter } from './adapters/jetcheckout';
-
-const provider = process.env.PAYMENTS_PROVIDER ?? 'stripe';
-export const payments: IPaymentsAdapter =
-  provider === 'jetcheckout' ? jetAdapter : stripeAdapter;
-```
-
-### Örnek API Route – Create Payment
-```ts
-// apps/api/app/api/payment/create/route.ts
-import { NextResponse } from 'next/server';
-import { payments } from '@repo/payments';
-
-export async function POST(req: Request) {
-  const body = await req.json();
-  const { amount, currency = 'TRY', description, returnUrl, metadata } = body;
-  const result = await payments.createPayment({
-    amount,
-    currency,
-    description,
-    returnUrl,
-    metadata,
-  });
-  return NextResponse.json(result, { status: 201 });
-}
-```
-
-### Örnek API Route – Webhook
-```ts
-// apps/api/app/api/payment/webhook/route.ts
-import { payments } from '@repo/payments';
-
-export async function POST(req: Request) {
-  const raw = await req.text();
-  const sig =
-    req.headers.get('stripe-signature') ??
-    req.headers.get('x-jetcheckout-signature') ??
-    '';
-  const event = payments.verifyWebhook(sig, raw);
-  // TODO: event.type'e göre işleyin (payment_succeeded, payment_failed, vb.)
-  return new Response('ok');
-}
-```
-
----
-
 ## 🔁 CI/CD Pipeline (Mermaid)
 ```mermaid
 flowchart LR
@@ -4208,22 +4124,12 @@ flowchart LR
 ---
 
 ## 📦 Komutlar
-- **Install:** `pnpm i`
-- **Dev:** `pnpm dev`  _(ya da)_  `turbo dev --filter=!storybook`
+- **Install:** `pnpm install`
+- **Dev:** `pnpm dev`
 - **Test:** `pnpm test`
 - **Typecheck/Lint:** `pnpm typecheck` / `pnpm lint`
 - **Build:** `pnpm -w build`
 
-## ✅ Kalite Hedefleri
-- **Test Coverage:** ≥ **85%** (SonarQube Cloud kalite kapısı)
-- **E2E (opsiyonel):** Playwright
-- **Security:** Dependabot / `security.yml`
-
 ---
 
-## ▶️ Next Steps (Önerilen)
-- `packages/payments/adapters/jetcheckout.ts` iskeletini tamamla.
-- `apps/api` için örnek escrow uçlarını (create, status, release) bağla.
-- `packages/auth-{rbac,abac}` policy örneklerini ekle (ör: escrow.owner sadece kendi işlemini görsün).
-- `apps/docs` içinde bu dokümanı MDX olarak yayınla ve Mermaid render’ı aç.
 
