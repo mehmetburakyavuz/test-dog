@@ -153,7 +153,6 @@ Her modül, türünü, giriş noktasını, meta verilerini ve isteğe bağlı ş
 ## Main Decision Tree
 ```mermaid
 flowchart TD
-
     A[Project Start: Zopio Full‑Stack App] --> B{Payments}
     B -->|Global| C[Stripe]
     B -->|TR‑focused| D[Jetcheckout]
@@ -187,6 +186,8 @@ flowchart TD
     G -.-> V
     I -.-> W[[Database Sub‑Tree]]
     J -.-> W
+    Q -.-> Y[[Storage Sub‑Tree]]
+    R -.-> Y
     N -.-> X[[Deploy Sub‑Tree]]
     O -.-> X
 ```
@@ -4208,12 +4209,50 @@ SENTRY_DSN=https://...
 ## 🔁 CI/CD Pipeline (Mermaid)
 ```mermaid
 flowchart LR
-  Dev[Developer PR] --> CI[GitHub Actions]
-  CI -->|Build + Test + Lint + Sonar| Artifacts[(Artifacts)]
-  CI -->|Preview Deploy| Vercel[Vercel Preview]
-  CI -->|Docker Build| Registry[(Container Registry)]
-  Registry --> Staging[Staging VPS/K8s]
-  Staging --> Prod[Production]
+    Dev[Developer PR] --> Validation[PR Validations]
+    Dev --> StaticChecks[Static Checks]
+    Dev --> Build[Build Workflow]
+    Dev --> Security[Security Scan]
+    
+    Validation -->|Branch naming<br/>PR title format<br/>PR size limits<br/>Breaking changes| ValidationPass{✅ Pass?}
+    
+    StaticChecks -->|Biome format<br/>Ultracite lint<br/>TypeScript check<br/>Vitest tests| StaticPass{✅ Pass?}
+    
+    Build -->|pnpm install<br/>Environment setup<br/>Turbo build<br/>Bundle analysis| BuildArtifacts[(Bundle Analysis<br/>Artifacts)]
+    
+    Security -->|CodeQL analysis<br/>Trivy dependency scan<br/>TruffleHog secrets<br/>Container scan| SecurityPass{✅ Pass?}
+    
+    ValidationPass -->|❌ Fail| ValidationFeedback[PR Comments<br/>& Labels]
+    StaticPass -->|❌ Fail| StaticFeedback[Lint/Type Errors]
+    SecurityPass -->|❌ Fail| SecurityDashboard[GitHub Security<br/>SARIF Reports]
+    
+    ValidationPass -->|✅ Pass| ReadyForReview[Ready for Review]
+    StaticPass -->|✅ Pass| ReadyForReview
+    SecurityPass -->|✅ Pass| ReadyForReview
+    BuildArtifacts --> ReadyForReview
+    
+    ReadyForReview --> ManualReview[Code Review]
+    ManualReview --> Merge{Merge to Main?}
+    
+    Merge -->|✅ Approved| MainBranch[Main Branch]
+    Merge -->|❌ Changes Requested| Dev
+    
+    MainBranch --> Release[Release Workflow]
+    Release -->|Auto semantic versioning<br/>Changelog generation<br/>NPM publish<br/>GitHub release| Production[🚀 Production]
+    
+    %% Styling
+    classDef workflow fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef check fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef artifact fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef decision fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef feedback fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef production fill:#e8f5e8,stroke:#1b5e20,stroke-width:3px
+    
+    class Validation,StaticChecks,Build,Security,Release workflow
+    class ValidationPass,StaticPass,SecurityPass,Merge decision
+    class BuildArtifacts,SecurityDashboard artifact
+    class ValidationFeedback,StaticFeedback feedback
+    class Production production
 ```
 
 ---
