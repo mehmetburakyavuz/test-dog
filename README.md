@@ -2,7 +2,7 @@
 # Zopio Full‑Stack Decision Tree
 
 Zopio ile uçtan uca bir full-stack uygulama tasarlamak için pratik karar ağacı + açıklayıcı bir rehber.
-Bu rehber, Zopio kullanılarak proje geliştirirken alınması gereken temel kararları ve her kararın arkasındaki mantığı açıklar. Ayrıca, kilit noktalarda alternatif seçimlere (ör. Stripe ↔ Jetcheckout, Clerk ↔ Zopio Auth, NeonDB ↔ Turso, Vercel ↔ Docker) izin vererek proje başlangıç kılavuzunuz olarak kullanılabilir ve monoreponuzla birlikte yaşayan bir belge olarak tutulabilir.
+Bu rehber, Zopio kullanılarak proje geliştirirken alınması gereken temel kararları ve her kararın arkasındaki mantığı açıklar. Ayrıca, kilit noktalarda alternatif seçimlere (ör. Stripe ↔ Jetcheckout, Clerk ↔ Better Auth, NeonDB ↔ Supabase, Vercel ↔ Netlify) izin vererek proje başlangıç kılavuzunuz olarak kullanılabilir ve monoreponuzla birlikte yaşayan bir belge olarak tutulabilir.
 
 ---
 
